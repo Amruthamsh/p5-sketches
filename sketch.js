@@ -22,7 +22,7 @@ let draw_s;
 function setup() { 
   createCanvas(994, 700);
   angleMode(DEGREES);
-  background(255);
+  background(242);
 
   // Creating the save button for the file
   saveButton = createButton('save');
