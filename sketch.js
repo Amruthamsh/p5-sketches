@@ -65,7 +65,7 @@ function saveFile() {
 
 // Clear Screen function
 function clearScreen() {
-  background(255);
+  background(242);
 }
 
 
