@@ -20,7 +20,7 @@ let mode;
 let draw_s;
 
 function setup() { 
-  createCanvas(1420, 1000);
+  createCanvas(994, 700);
   angleMode(DEGREES);
   background(255);
 
