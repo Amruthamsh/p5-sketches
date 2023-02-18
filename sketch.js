@@ -15,17 +15,18 @@ let mode;
 let draw_s;
 
 // This array will contain "chunks" of the video captured by the MediaRecorder
-var chunks = [];
-var mediaRecorder;
-
-var recordButton;
-var canvas;
-var stream;
-var video;
 let recording = false;
+let recorder;
+let chunks = [];
+
+const fr = 30;
 
 function setup() { 
   canvas = createCanvas(994, 700);
+  
+  frameRate(fr);
+  // initialize recorder
+  record();
   
   angleMode(DEGREES);
   background(242);
@@ -34,8 +35,8 @@ function setup() {
   saveButton = createButton('save image');
   saveButton.mousePressed(saveFile);
   
-  recordButton = createButton("Record");
-  recordButton.mousePressed(recordIt);
+  //recordButton = createButton("Record");
+  //recordButton.mousePressed(recordIt);
 
   // Creating the clear screen button
   clearButton = createButton('clear');
@@ -65,14 +66,6 @@ function setup() {
   mode.selected('Harmony Disharmony');
   mode.changed(mySelectEvent);
   draw_s = createVector(2, -2)
-  
-  if(recording == false)
-    {
-      recording = true;
-      video = createCapture(VIDEO);
-      video.hide();
-      stream = canvas.elt.captureStream();
-    }
   
 }
 
@@ -145,45 +138,57 @@ function mySelectEvent() {
   //text('It is a ' + item + '!', 50, 50);
 }
 
-function recordIt() {
-    // Give the MediaRecorder the stream to record
-    mediaRecorder = new MediaRecorder(stream);
 
-    // This is an event listener for the "stop" event on the MediaRecorder
-       
-    mediaRecorder.onstop = function(e) {
-      console.log("stop");
+function record() {
+  chunks.length = 0;
+  
+  let stream = document.querySelector('canvas').captureStream(fr);
+  
+  recorder = new MediaRecorder(stream);
+  
+  recorder.ondataavailable = e => {
+    if (e.data.size) {
+      chunks.push(e.data);
+    }
+  };
+  
+  recorder.onstop = exportVideo;
+  
+}
 
-      // Create a new video element on the page
-      var video = document.createElement('video');
-      video.controls = true;
+function exportVideo(e) {
+  var blob = new Blob(chunks, { 'type' : 'video/webm' });
+  
+  // Download the video 
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  document.body.appendChild(a);
+  a.style = 'display: none';
+  a.href = url;
+  a.download = 'newVid.webm';
+  a.click();
+  window.URL.revokeObjectURL(url);
 
-      // Create a blob - Binary Large Object of type video/webm
-      var blob = new Blob(chunks, { 'type' : 'video/webm' });
-      
-      
-      const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob)
-        
-      a.download = "recording.webm"
-         
-      a.click()
-      
-    };
+}
 
-    // Another callback/event listener - "dataavailable"
-    mediaRecorder.ondataavailable = function(e) {
-        console.log("data");
-        // Whenever data is available from the MediaRecorder put it in the array
-        chunks.push(e.data);
-    };
-
-    // Start the MediaRecorder
-    mediaRecorder.start();
-
-    // After 10 seconds, stop the MediaRecorder
-    setTimeout(function() {
-        mediaRecorder.stop();
-    }, 10500);
-    recording = false;
+function keyPressed() {
+    
+  // toggle recording true or false
+  recording = !recording
+  console.log(recording);
+  
+  // 82 is keyCode for r 
+  // if recording now true, start recording 
+  if (keyCode === 82 && recording ) {
+    
+    console.log("recording started!");
+    recorder.start();
+  } 
+  
+  // if we are recording, stop recording 
+  if (keyCode === 82 && !recording) {  
+    console.log("recording stopped!");
+    recorder.stop();
+  }
+  
 }
