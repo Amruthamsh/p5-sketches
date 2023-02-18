@@ -1,12 +1,7 @@
 /* 
-
 "The hardest choie may as well be to know when to stop!!!"
-
 "The joy is in watching beautiful creations get made...and then unmade." 
-
 quotes that play during the loading screen of the site and when a gif is being downloaded or being shared 
-
-
 */
 
 // Symmetry corresponding to the number of reflections. Change the number for different number of reflections 
@@ -19,14 +14,27 @@ let b_slider,s_slider;
 let mode;
 let draw_s;
 
+// This array will contain "chunks" of the video captured by the MediaRecorder
+var chunks = [];
+var mediaRecorder;
+
+var recordButton;
+var canvas;
+var stream;
+var video;
+
 function setup() { 
-  createCanvas(994, 700);
+  canvas = createCanvas(994, 700);
+  
   angleMode(DEGREES);
   background(242);
 
   // Creating the save button for the file
   saveButton = createButton('save image');
   saveButton.mousePressed(saveFile);
+  
+  recordButton = createButton("Record");
+  recordButton.mousePressed(recordIt);
 
   // Creating the clear screen button
   clearButton = createButton('clear');
@@ -56,6 +64,10 @@ function setup() {
   mode.selected('Harmony Disharmony');
   mode.changed(mySelectEvent);
   draw_s = createVector(2, -2)
+  
+  video = createCapture(VIDEO);
+  video.hide();
+  stream = canvas.elt.captureStream();
 }
 
 // Save File Function
@@ -125,4 +137,46 @@ function mySelectEvent() {
     }
   
   //text('It is a ' + item + '!', 50, 50);
+}
+
+function recordIt() {
+    // Give the MediaRecorder the stream to record
+    mediaRecorder = new MediaRecorder(stream);
+
+    // This is an event listener for the "stop" event on the MediaRecorder
+       
+    mediaRecorder.onstop = function(e) {
+      console.log("stop");
+
+      // Create a new video element on the page
+      var video = document.createElement('video');
+      video.controls = true;
+
+      // Create a blob - Binary Large Object of type video/webm
+      var blob = new Blob(chunks, { 'type' : 'video/webm' });
+      
+      
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+        
+      a.download = "recording.webm"
+         
+      a.click()
+      
+    };
+
+    // Another callback/event listener - "dataavailable"
+    mediaRecorder.ondataavailable = function(e) {
+        console.log("data");
+        // Whenever data is available from the MediaRecorder put it in the array
+        chunks.push(e.data);
+    };
+
+    // Start the MediaRecorder
+    mediaRecorder.start();
+
+    // After 5 seconds, stop the MediaRecorder
+    setTimeout(function() {
+        mediaRecorder.stop();
+    }, 5000);
 }
