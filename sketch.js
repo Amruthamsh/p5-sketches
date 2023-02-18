@@ -25,7 +25,7 @@ function setup() {
   background(242);
 
   // Creating the save button for the file
-  saveButton = createButton('save');
+  saveButton = createButton('save image');
   saveButton.mousePressed(saveFile);
 
   // Creating the clear screen button
