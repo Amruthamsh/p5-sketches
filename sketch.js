@@ -22,6 +22,7 @@ var recordButton;
 var canvas;
 var stream;
 var video;
+let recording = false;
 
 function setup() { 
   canvas = createCanvas(994, 700);
@@ -65,9 +66,14 @@ function setup() {
   mode.changed(mySelectEvent);
   draw_s = createVector(2, -2)
   
-  video = createCapture(VIDEO);
-  video.hide();
-  stream = canvas.elt.captureStream();
+  if(recording == false)
+    {
+      recording = true;
+      video = createCapture(VIDEO);
+      video.hide();
+      stream = canvas.elt.captureStream();
+    }
+  
 }
 
 // Save File Function
@@ -175,8 +181,9 @@ function recordIt() {
     // Start the MediaRecorder
     mediaRecorder.start();
 
-    // After 5 seconds, stop the MediaRecorder
+    // After 10 seconds, stop the MediaRecorder
     setTimeout(function() {
         mediaRecorder.stop();
-    }, 5000);
+    }, 10500);
+    recording = false;
 }
