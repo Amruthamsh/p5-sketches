@@ -186,9 +186,9 @@ function keyPressed() {
   } 
   
   // if we are recording, stop recording 
-  if (keyCode === 82 && !recording) {  
+  if (keyCode === 83 && !recording) {  
     console.log("recording stopped!");
     recorder.stop();
+    record();
   }
-  
 }
